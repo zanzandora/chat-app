@@ -1,9 +1,9 @@
+import { getStreanToken } from '@/controllers/chat.controller';
 import {
   acceptFriendReq,
   getFriendReq,
   getMyFriends,
   getOnGoingFriendReqs,
-  getRecommendedUsers,
   sendFriendReq,
 } from '@/controllers/user.controller';
 import { authenticateToken } from '@/middleware/authenticateToken';
@@ -11,9 +11,7 @@ import { Router } from 'express';
 
 const expressRouter = Router();
 
-expressRouter.use(authenticateToken);
-
-expressRouter.get('/', getRecommendedUsers);
+expressRouter.get('/token', authenticateToken, getStreanToken);
 expressRouter.get('/friends', getMyFriends);
 
 expressRouter.post('/friend-req/:id', sendFriendReq);
