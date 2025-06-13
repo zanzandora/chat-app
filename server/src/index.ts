@@ -6,6 +6,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import authRouter from '@/routers/auth.router';
+import userRouter from '@/routers/user.router';
+import chatRouter from '@/routers/chat.router';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +25,8 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/auth', authRouter);
+app.use('/users', userRouter);
+app.use('/chat', chatRouter);
 
 app.use(
   (
@@ -34,6 +38,7 @@ app.use(
     console.error(`[${req.method}] ${req.originalUrl} - ${err.message}`);
     res.status(err.statusCode || 500).json({
       message: err.message,
+      missingFields: err.missingFields,
       status: err.statusCode,
       stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
     });

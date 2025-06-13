@@ -1,7 +1,27 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Model, Schema, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-const userSchema = new Schema(
+export interface IUser {
+  _id: Types.ObjectId;
+  email: string;
+  password: string;
+  fullname: string;
+  img?: string;
+  bio?: string;
+  nativeLanguage?: string;
+  learningLanguage?: string;
+  location?: string;
+  inOnboarded?: boolean;
+  friends?: string[];
+}
+
+export interface IUserMethods {
+  comparePassword: (candidatePassword: string) => Promise<boolean>;
+}
+
+type UserModel = Model<IUser, {}, IUserMethods>;
+
+const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     fullname: {
       type: String,
@@ -28,10 +48,6 @@ const userSchema = new Schema(
       default: '',
     },
     nativeLanguage: {
-      type: String,
-      default: '',
-    },
-    learning: {
       type: String,
       default: '',
     },
@@ -71,6 +87,12 @@ userSchema.pre('save', async function (next) {
     next(error);
   }
 });
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = mongoose.model('User', userSchema);
 
