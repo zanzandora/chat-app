@@ -3,19 +3,15 @@ import jwt from 'jsonwebtoken';
 import User from '@/models/user.model';
 import { AppError } from '@/utils/AppError';
 
-export interface AuthRequest extends Request {
-  user?: any;
-}
-
 export const authenticateToken = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
   try {
     const token = req.cookies?.token;
     if (!token) {
-      // return res.redirect('/login');
+      // res.redirect('/login');
       throw new AppError('Unauthorized - Dont have token', 401);
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY!);

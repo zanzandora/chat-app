@@ -12,8 +12,15 @@ export const signup = async (
 ) => {
   try {
     const { email, password, fullname } = req.body;
-    if (!email || !password || !fullname) {
-      throw new AppError('All fields are required', 400);
+
+    const missingFields: string[] = [];
+
+    if (!email) missingFields.push('email');
+    if (!password) missingFields.push('password');
+    if (!fullname) missingFields.push('fullname');
+
+    if (missingFields.length > 0) {
+      throw new AppError('All fields are required', 400, { missingFields });
     }
 
     if (password.lenght < 6) {

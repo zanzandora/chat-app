@@ -24,9 +24,9 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/auth', authRouter);
-app.use('/users', userRouter);
-app.use('/chat', chatRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/chat', chatRouter);
 
 app.use(
   (

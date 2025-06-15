@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Navigate, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import SignUpPage from './pages/SignUpPage';
+import LoginPage from './pages/LoginPage';
+import NotificationPage from './pages/NotificationPage';
+import CallPage from './pages/CallPage';
+import ChatPage from './pages/ChatPage';
+import OnBoardingPage from './pages/OnBoardingPage';
+import { useQuery } from '@tanstack/react-query';
+import { axiosInstance } from './libs/axios';
+import PrivateRoute from './components/ProtectedRoute ';
+import Loader from './components/Loader';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { data: authData, isLoading } = useQuery({
+    queryKey: ['authUser'],
+    queryFn: async () => {
+      const res = await axiosInstance.get('/auth/me');
+      return res.data;
+    },
+    retry: false,
+  });
+
+  const authUser = authData?.user;
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className='h-screen w-screen' data-theme='night'>
+      <Routes>
+        <Route
+          path='/signup'
+          element={!authData ? <SignUpPage /> : <Navigate to='/' replace />}
+        />
+        <Route
+          path='/login'
+          element={!authData ? <LoginPage /> : <Navigate to='/' replace />}
+        />
+
+        {/* Sử dụng PrivateRoute làm route cha để bảo vệ các route con */}
+        <Route element={<PrivateRoute authUser={authUser} />}>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/notification' element={<NotificationPage />} />
+          <Route path='/call' element={<CallPage />} />
+          <Route path='/chat' element={<ChatPage />} />
+          <Route path='/onboarding' element={<OnBoardingPage />} />
+        </Route>
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;
