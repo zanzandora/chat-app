@@ -1,9 +1,9 @@
 // hooks/useSignUp.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { axiosInstance } from '@/libs/axios';
 import type { IUser } from '@/types';
+import { signup } from '@/libs/api';
 
-type ISignUp = {
+export type ISignUp = {
   fullname: IUser['fullname'];
   email: IUser['email'];
   password: IUser['password'];
@@ -13,10 +13,7 @@ export const useSignUp = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: ISignUp) => {
-      const res = await axiosInstance.post('/auth/signup', data);
-      return res.data;
-    },
+    mutationFn: signup,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authUser'] }),
   });
 };

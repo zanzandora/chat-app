@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import type { IUser } from '@/types';
 
 type Props = {
-  authUser: IUser;
+  authUser?: IUser;
 };
 
 const PrivateRoute = ({ authUser }: Props) => {
