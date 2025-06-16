@@ -9,6 +9,8 @@ import OnBoardingPage from './pages/OnBoardingPage';
 import Loader from './components/Loader';
 import useAuthUser from './hooks/useAuthUser';
 import { Toaster } from 'react-hot-toast';
+import MainLayout from './layout/MainLayout';
+import FriendsPage from './pages/FriendsPage';
 
 function App() {
   const { isLoading, authUser } = useAuthUser();
@@ -27,7 +29,9 @@ function App() {
           path='/'
           element={
             isAuthenticated && isOnBoarded ? (
-              <HomePage />
+              <MainLayout showSidebar={true}>
+                <HomePage />
+              </MainLayout>
             ) : (
               <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />
             )
@@ -54,10 +58,24 @@ function App() {
           }
         />
         <Route
+          path='/friends'
+          element={
+            isAuthenticated && isOnBoarded ? (
+              <MainLayout showSidebar={true}>
+                <FriendsPage />
+              </MainLayout>
+            ) : (
+              <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />
+            )
+          }
+        />
+        <Route
           path='/notifications'
           element={
             isAuthenticated && isOnBoarded ? (
-              <NotificationPage />
+              <MainLayout showSidebar={true}>
+                <NotificationPage />
+              </MainLayout>
             ) : (
               <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />
             )
