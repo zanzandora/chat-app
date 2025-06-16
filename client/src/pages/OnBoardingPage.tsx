@@ -67,7 +67,7 @@ const OnboardingPage = () => {
 
   const handleRandomAvatar = () => {
     const idx = Math.floor(Math.random() * 100) + 1;
-    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    const randomAvatar = `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${idx}&radius=50`;
     setValue('img', randomAvatar, { shouldValidate: true });
     toast.success('Random profile picture generated!');
   };

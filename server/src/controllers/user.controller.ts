@@ -12,18 +12,38 @@ export const getRecommendedUsers = async (
     const currentUserId = req.user?._id;
     const currentUser = req.user;
 
+    const pendingFriendReqs = await FriendReq.find({
+      status: 'pending',
+      $or: [{ sender: currentUserId }, { recipient: currentUserId }],
+    });
+
+    // Collect all user IDs who are in a pending FriendReq with the current user
+    const pendingUserIds = new Set<string>();
+    pendingFriendReqs.forEach((req) => {
+      if (req.sender.toString() !== currentUserId.toString()) {
+        pendingUserIds.add(req.sender.toString());
+      }
+      if (req.recipient.toString() !== currentUserId.toString()) {
+        pendingUserIds.add(req.recipient.toString());
+      }
+    });
+
+    // Prepare the exclusion list: friends + users with pending FriendReq
+    const excludeIds = [
+      currentUserId,
+      ...(currentUser?.friends || []),
+      ...pendingUserIds,
+    ];
+
     /**
      * TODO:
      * * finds users who are not the current user
      * * are not friends of the current user
+     * * are on the pending state req
      * * have completed on broading
      */
     const recommendedusers = await User.find({
-      $and: [
-        { _id: { $ne: currentUserId } },
-        { _id: { $nin: currentUser?.friends } },
-        { inOnboarded: true },
-      ],
+      $and: [{ _id: { $nin: excludeIds } }, { inOnboarded: true }],
     });
 
     res.status(201).json(recommendedusers);
@@ -161,9 +181,9 @@ export const getOnGoingFriendReqs = async (
 ) => {
   try {
     const onGoingFriendReqs = await FriendReq.find({
-      recipient: req.user._id,
+      sender: req.user._id,
       status: 'pending',
-    }).populate('sender', 'fullname img nativeLanguage learningLanguage');
+    }).populate('recipient', 'fullname img nativeLanguage learningLanguage');
 
     res.status(200).json(onGoingFriendReqs);
   } catch (error) {

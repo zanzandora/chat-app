@@ -181,7 +181,7 @@ export const LANGUAGES = [
 ];
 
 export const LANGUAGE_TO_FLAG = {
-  vietnam: 'vi',
+  vietnamese: 'vn',
   english: 'gb',
   spanish: 'es',
   french: 'fr',

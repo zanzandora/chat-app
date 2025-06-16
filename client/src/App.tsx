@@ -11,9 +11,12 @@ import useAuthUser from './hooks/useAuthUser';
 import { Toaster } from 'react-hot-toast';
 import MainLayout from './layout/MainLayout';
 import FriendsPage from './pages/FriendsPage';
+import { useThemeStore } from './store/useThemeStore';
 
 function App() {
   const { isLoading, authUser } = useAuthUser();
+
+  const { theme } = useThemeStore();
 
   const isAuthenticated = Boolean(authUser);
   const isOnBoarded = authUser?.inOnboarded;
@@ -23,7 +26,7 @@ function App() {
   }
 
   return (
-    <div className='h-screen ' data-theme='dracula'>
+    <div className='h-screen ' data-theme={theme}>
       <Routes>
         <Route
           path='/'
