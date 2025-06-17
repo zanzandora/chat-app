@@ -88,7 +88,9 @@ function App() {
           path='/call/:id'
           element={
             isAuthenticated && isOnBoarded ? (
-              <CallPage />
+              <MainLayout showSidebar={false}>
+                <CallPage />
+              </MainLayout>
             ) : (
               <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />
             )

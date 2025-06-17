@@ -18,15 +18,9 @@ export const getRecommendedUsers = async (
     });
 
     // Collect all user IDs who are in a pending FriendReq with the current user
-    const pendingUserIds = new Set<string>();
-    pendingFriendReqs.forEach((req) => {
-      if (req.sender.toString() !== currentUserId.toString()) {
-        pendingUserIds.add(req.sender.toString());
-      }
-      if (req.recipient.toString() !== currentUserId.toString()) {
-        pendingUserIds.add(req.recipient.toString());
-      }
-    });
+    const pendingUserIds = pendingFriendReqs
+      .filter((req) => req.sender.toString() !== currentUserId.toString())
+      .map((req) => req.sender.toString());
 
     // Prepare the exclusion list: friends + users with pending FriendReq
     const excludeIds = [
@@ -165,7 +159,7 @@ export const getFriendReq = async (
     }).populate('sender', 'fullname img nativeLanguage learningLanguage');
 
     const acceptedReqs = await FriendReq.find({
-      recipient: req.user._id,
+      sender: req.user._id,
       status: 'accepted',
     }).populate('recipient', 'fullname img');
     res.status(201).json({ incomingReqs, acceptedReqs });

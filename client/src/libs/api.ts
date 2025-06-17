@@ -3,6 +3,7 @@ import { axiosInstance } from './axios';
 import type { OnboardingFormValues } from '@/pages/OnBoardingPage';
 import type { ILogin } from '@/hooks/useLogin';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import type { IFriendReqExtend } from '@/types';
 
 export const signup = async (signupData: ISignUp) => {
   const res = await axiosInstance.post('/auth/signup', signupData);
@@ -51,5 +52,17 @@ export const getOutGoingFriednReqs = async () => {
 
 export const sendFriendReq = async (userId: string) => {
   const res = await axiosInstance.post(`/users/friend-req/${userId}`);
+  return res.data;
+};
+
+export const getFriendReqs = async (): Promise<IFriendReqExtend> => {
+  const res = await axiosInstance.get<IFriendReqExtend>('/users/friend-req');
+  return res.data;
+};
+
+export const acceptFriendReq = async (friendReqId: string) => {
+  const res = await axiosInstance.put(
+    `/users/friend-req/${friendReqId}/accept`
+  );
   return res.data;
 };
