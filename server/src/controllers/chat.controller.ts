@@ -1,8 +1,6 @@
-import User from '@/models/user.model';
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '@/utils/AppError';
-import FriendReq from '@/models/friendReq.model';
 import { generateStreamToken } from '@/libs/stream';
+import { AppError } from '@/utils/AppError';
 
 export const getStreanToken = async (
   req: Request,
@@ -10,8 +8,11 @@ export const getStreanToken = async (
   next: NextFunction
 ) => {
   try {
-    const token = generateStreamToken(req.user._id.toString());
+    const token = await generateStreamToken(req.user._id.toString());
 
+    if (!token) {
+      throw new AppError('Failed to generate stream token');
+    }
     res.status(200).json({ token });
   } catch (error) {
     next(error);

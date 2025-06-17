@@ -26,7 +26,7 @@ function App() {
   }
 
   return (
-    <div className='h-screen ' data-theme={theme}>
+    <div data-theme={theme}>
       <Routes>
         <Route
           path='/'
@@ -101,7 +101,9 @@ function App() {
           path='/chat/:id'
           element={
             isAuthenticated && isOnBoarded ? (
-              <ChatPage />
+              <MainLayout showSidebar={false}>
+                <ChatPage />
+              </MainLayout>
             ) : (
               <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />
             )
