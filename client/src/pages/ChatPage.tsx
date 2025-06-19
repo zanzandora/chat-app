@@ -1,11 +1,12 @@
 import CallBtn from '@/components/CallBtn';
 import ChatLoader from '@/components/ChatLoader';
 import useAuthUser from '@/hooks/useAuthUser';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { getStreamToken } from '@/libs/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { type Channel as StreamChannel, StreamChat } from 'stream-chat';
 import {
   Chat,
@@ -21,6 +22,7 @@ const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
 const ChatPage = () => {
   const { id: targetUserId } = useParams();
+  const isMobile = useIsMobile();
 
   const [chatClient, setChatClient] = useState<StreamChat>();
   const [channel, setChannel] = useState<StreamChannel>();
@@ -102,15 +104,20 @@ const ChatPage = () => {
     <div className='h-[93vh]'>
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <div className=' w-full relative '>
+          <div className='w-full relative h-full flex flex-col'>
             <CallBtn handleVideoCall={handleVideoCall} />
             <Window>
               <ChannelHeader />
               <MessageList />
               <MessageInput focus />
             </Window>
+            {isMobile && (
+              <div className='h-full w-full'>
+                <Thread />
+              </div>
+            )}
+            {!isMobile && <Thread />}
           </div>
-          <Thread />
         </Channel>
       </Chat>
     </div>
