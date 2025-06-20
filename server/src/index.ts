@@ -18,7 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Đảm bảo path đúng dù chạy ở src/ hay dist/
-const clientDistPath = path.resolve(__dirname, '../client/dist');
+const clientDist = path.resolve(__dirname, '../../client/dist');
 
 app.use(cookieParser());
 app.use(express.json());
@@ -54,10 +54,10 @@ app.use(
 );
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(clientDistPath));
+  app.use(express.static(clientDist));
 
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(clientDistPath, 'index.html'));
+  app.get(/(.*)/, (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
   });
 }
 

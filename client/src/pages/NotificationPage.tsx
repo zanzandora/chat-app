@@ -1,5 +1,5 @@
 import NoNotificationsFound from '@/components/NoNotificationsFound';
-import { acceptFriendReq, getFriendReqs } from '@/libs/api';
+import { acceptFriendReq, denyriendReq, getFriendReqs } from '@/libs/api';
 import { timePassed } from '@/utils/timePassed';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -18,14 +18,25 @@ const NotificationPage = () => {
     queryFn: getFriendReqs,
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: acceptFriendReq,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
-      queryClient.invalidateQueries({ queryKey: ['friends'] });
-      toast.success('Friend request accepted successfully!');
-    },
-  });
+  const { mutate: acceptedReqMutate, isPending: isPendingAcceptedReq } =
+    useMutation({
+      mutationFn: acceptFriendReq,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
+        queryClient.invalidateQueries({ queryKey: ['friends'] });
+        toast.success('Friend request accepted successfully!');
+      },
+    });
+
+  const { mutate: deniedReqMutate, isPending: isPendingDeniedReq } =
+    useMutation({
+      mutationFn: denyriendReq,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
+        queryClient.invalidateQueries({ queryKey: ['friends'] });
+        toast.success('Friend request denied successfully!');
+      },
+    });
 
   const inComingReqs = FriendReqs?.incomingReqs || [];
   const acceptReqs = FriendReqs?.acceptedReqs || [];
@@ -83,13 +94,23 @@ const NotificationPage = () => {
                             </div>
                           </div>
 
-                          <button
-                            className='btn btn-primary btn-sm'
-                            onClick={() => mutate(request._id!)}
-                            disabled={isPending}
-                          >
-                            Accept
-                          </button>
+                          <div className='flex md:flex-row flex-col items-center justify-center gap-4'>
+                            <button
+                              className='btn btn-primary btn-sm'
+                              onClick={() => acceptedReqMutate(request._id!)}
+                              disabled={isPendingAcceptedReq}
+                            >
+                              Accept
+                            </button>
+
+                            <button
+                              className='btn btn-error btn-sm text-black'
+                              onClick={() => deniedReqMutate(request._id!)}
+                              disabled={isPendingDeniedReq}
+                            >
+                              Deny
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

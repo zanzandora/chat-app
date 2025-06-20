@@ -147,6 +147,34 @@ export const acceptFriendReq = async (
   }
 };
 
+export const denyFriendReq = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id: requestId } = req.params;
+
+    const friendReq = await FriendReq.findById(requestId);
+
+    if (!friendReq) {
+      throw new AppError('Friend request not found', 404);
+    }
+
+    // Only the recipient can deny the request
+    if (friendReq.recipient.toString() !== req.user._id.toString()) {
+      throw new AppError('You are not authorized to deny this request', 403);
+    }
+
+    friendReq.status = 'denied';
+    await friendReq.save();
+
+    res.status(200).json({ message: 'Friend request denied' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getFriendReq = async (
   req: Request,
   res: Response,

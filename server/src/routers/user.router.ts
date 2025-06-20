@@ -1,5 +1,6 @@
 import {
   acceptFriendReq,
+  denyFriendReq,
   getFriendReq,
   getMyFriends,
   getOnGoingFriendReqs,
@@ -18,6 +19,7 @@ expressRouter.get('/friends', getMyFriends);
 
 expressRouter.post('/friend-req/:id', sendFriendReq);
 expressRouter.put('/friend-req/:id/accept', acceptFriendReq);
+expressRouter.put('/friend-req/:id/deny', denyFriendReq);
 
 expressRouter.get('/friend-req', getFriendReq);
 expressRouter.get('/ongoing-friend-reqs', getOnGoingFriendReqs);
