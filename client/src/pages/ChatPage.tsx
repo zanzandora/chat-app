@@ -6,7 +6,7 @@ import { getStreamToken } from '@/libs/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { type Channel as StreamChannel, StreamChat } from 'stream-chat';
 import {
   Chat,
@@ -85,7 +85,6 @@ const ChatPage = () => {
     };
 
     initChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, targetUserId, tokenData, chatClient]);
 
   const handleVideoCall = () => {

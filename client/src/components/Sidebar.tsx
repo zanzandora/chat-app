@@ -2,8 +2,6 @@ import useAuthUser from '@/hooks/useAuthUser';
 import { BellIcon, HomeIcon, Moon, UsersIcon } from 'lucide-react';
 import { Link } from 'react-router';
 
-type Props = {};
-
 const getMenuItems = () => [
   {
     items: [
@@ -25,7 +23,7 @@ const getMenuItems = () => [
     ],
   },
 ];
-const Sidebar = (props: Props) => {
+const Sidebar = () => {
   const { authUser } = useAuthUser();
 
   const menuItems = getMenuItems();

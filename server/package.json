@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --watch src --ext ts --exec tsx src/index.ts",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "build": "tsup",
+    "test": "npx tsc --noEmit",
+    "build": "tsup src/index.ts --out-dir dist --format esm --target node20 --dts",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [],
@@ -15,6 +16,7 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "chat-app": "file:..",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

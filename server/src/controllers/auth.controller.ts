@@ -184,7 +184,7 @@ export const onboard = async (
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (_req: Request, res: Response) => {
   res.clearCookie('token', { secure: process.env.NODE_ENV === 'production' });
   res.status(200).json({ success: true, message: 'Logout successful' });
 };

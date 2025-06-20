@@ -5,7 +5,7 @@ import { AppError } from '@/utils/AppError';
 
 export const authenticateToken = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<any> => {
   try {

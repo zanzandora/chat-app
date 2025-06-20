@@ -4,9 +4,7 @@ import { Moon } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 
-type Props = {};
-
-const LoginPage = (props: Props) => {
+const LoginPage = () => {
   const [loginData, setLoginData] = useState({
     fullname: '',
     email: '',
