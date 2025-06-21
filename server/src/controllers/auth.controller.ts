@@ -175,7 +175,60 @@ export const onboard = async (
       });
       console.log(`Stream user updated for ${updateUser.fullname}`);
     } catch (error) {
-      throw new AppError(`Error creating Stream user: ${error}`, 400);
+      throw new AppError(`Error updating Stream user: ${error}`, 400);
+    }
+
+    res.status(200).json({ success: true, user: updateUser });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const putProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?._id;
+
+    const { fullname, bio, nativeLanguage, learningLanguage, location } =
+      req.body;
+
+    const missingFields: string[] = [];
+
+    if (!fullname) missingFields.push('fullname');
+    if (!bio) missingFields.push('bio');
+    if (!nativeLanguage) missingFields.push('nativeLanguage');
+    if (!learningLanguage) missingFields.push('learningLanguage');
+    if (!location) missingFields.push('location');
+
+    if (missingFields.length > 0) {
+      throw new AppError('Missing required fields', 401, { missingFields });
+    }
+
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...req.body,
+      },
+      { new: true }
+    );
+
+    if (!updateUser) {
+      throw new AppError('User not found', 404);
+    }
+
+    // TODO: UPDATE USER IN STREAM
+    try {
+      await upsertStreamUser({
+        id: updateUser._id.toString(),
+        name: updateUser.fullname,
+        image: updateUser.img || '',
+      });
+      console.log(`Stream user updated for ${updateUser.fullname}`);
+    } catch (error) {
+      throw new AppError(`Error updating Stream user: ${error}`, 400);
     }
 
     res.status(200).json({ success: true, user: updateUser });

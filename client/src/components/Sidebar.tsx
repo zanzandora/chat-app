@@ -1,5 +1,5 @@
 import useAuthUser from '@/hooks/useAuthUser';
-import { BellIcon, HomeIcon, Moon, UsersIcon } from 'lucide-react';
+import { BellIcon, HomeIcon, Moon, User, UsersIcon } from 'lucide-react';
 import { Link } from 'react-router';
 
 const getMenuItems = () => [
@@ -19,6 +19,11 @@ const getMenuItems = () => [
         icon: BellIcon,
         label: 'Notifications',
         href: `/notifications`,
+      },
+      {
+        icon: User,
+        label: 'My Profile',
+        href: `/profile`,
       },
     ],
   },

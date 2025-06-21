@@ -4,6 +4,7 @@ import Loader from './components/Loader';
 import useAuthUser from './hooks/useAuthUser';
 import { Toaster } from 'react-hot-toast';
 import { useThemeStore } from './store/useThemeStore';
+import ProfilePage from './pages/ProfilePage';
 
 // Lazy loaded pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -81,6 +82,18 @@ function App() {
               isAuthenticated && isOnBoarded ? (
                 <MainLayout showSidebar={true}>
                   <NotificationPage />
+                </MainLayout>
+              ) : (
+                <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />
+              )
+            }
+          />
+          <Route
+            path='/profile'
+            element={
+              isAuthenticated && isOnBoarded ? (
+                <MainLayout showSidebar={true}>
+                  <ProfilePage />
                 </MainLayout>
               ) : (
                 <Navigate to={!isAuthenticated ? '/login' : '/onboarding'} />

@@ -4,6 +4,7 @@ import type { OnboardingFormValues } from '@/pages/OnBoardingPage';
 import type { ILogin } from '@/hooks/useLogin';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import type { IFriendReqExtend } from '@/types';
+import type { ProfileFormValues } from '@/pages/ProfilePage';
 
 // TODO: AUTH LOGIC
 export const signup = async (signupData: ISignUp) => {
@@ -31,9 +32,13 @@ export const getAuthUser = async () => {
   }
 };
 
-// TODO: ONBOARDING LOGIC
 export const completeOnboarding = async (data: OnboardingFormValues) => {
   const res = await axiosInstance.post('/auth/onboarding', data);
+  return res.data;
+};
+
+export const updateProfile = async (data: ProfileFormValues) => {
+  const res = await axiosInstance.put('/auth/profile', data);
   return res.data;
 };
 

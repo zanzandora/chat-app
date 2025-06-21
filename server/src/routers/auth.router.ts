@@ -1,4 +1,10 @@
-import { login, logout, onboard, signup } from '@/controllers/auth.controller';
+import {
+  login,
+  logout,
+  onboard,
+  putProfile,
+  signup,
+} from '@/controllers/auth.controller';
 import { authenticateToken } from '@/middleware/authenticateToken';
 import { Router } from 'express';
 
@@ -9,6 +15,7 @@ expressRouter.post('/login', login);
 expressRouter.post('/logout', logout);
 
 expressRouter.post('/onboarding', authenticateToken, onboard);
+expressRouter.put('/profile', authenticateToken, putProfile);
 
 // * CHECK IF USER LOGGIN
 expressRouter.get('/me', authenticateToken, (req, res) => {
