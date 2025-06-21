@@ -1,8 +1,10 @@
 import NoFriendsFound from '@/components/NoFriendsFound';
-import { getUserFriends } from '@/libs/api';
+import { deleteFriend, getUserFriends } from '@/libs/api';
 import type { IUser } from '@/types';
+import { getErrorMessage } from '@/utils/getErrorMessage';
 import { getLanguageFlag } from '@/utils/getLanguageFlag';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router';
 
 const FriendsPage = () => {
@@ -13,6 +15,19 @@ const FriendsPage = () => {
   } = useQuery({
     queryKey: ['friends'],
     queryFn: getUserFriends,
+  });
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteFriendMutation, isPending } = useMutation({
+    mutationFn: deleteFriend,
+    onSuccess: () => {
+      toast.success('Remove friend successfully');
+      queryClient.invalidateQueries({ queryKey: ['friends'] });
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error) || 'Remove failed');
+    },
   });
 
   if (isLoading) return <div>Loading friends...</div>;
@@ -71,9 +86,51 @@ const FriendsPage = () => {
                   Chat Message
                 </Link>
                 <button className='btn btn-outline w-full'>View Profile</button>
-                <button className='btn btn-ghost w-full text-error'>
+                {/* Remove Friend Button triggers modal */}
+
+                <button
+                  onClick={() => {
+                    const modal = document.getElementById(
+                      `delete-modal-${friend._id}`
+                    ) as HTMLDialogElement;
+                    modal?.showModal();
+                  }}
+                  className='btn btn-ghost w-full text-error'
+                  disabled={isPending}
+                >
                   Remove Friend
                 </button>
+                {/* DaisyUI Modal for confirmation */}
+                <dialog id={`delete-modal-${friend._id}`} className='modal'>
+                  <div className='modal-box'>
+                    <h3 className='font-bold text-lg'>Remove Friend</h3>
+                    <p className='py-4'>
+                      Are you sure you want to remove{' '}
+                      <span className='font-semibold'>{friend.fullname}</span>{' '}
+                      from your friends?
+                    </p>
+                    <div className='modal-action'>
+                      <form method='dialog' className='flex gap-2'>
+                        <button className='btn btn-outline'>Cancel</button>
+                        <button
+                          type='button'
+                          className='btn btn-error'
+                          disabled={isPending}
+                          onClick={() => {
+                            deleteFriendMutation(friend._id!);
+                            // Close the modal
+                            const modal = document.getElementById(
+                              `delete-modal-${friend._id}`
+                            ) as HTMLDialogElement;
+                            modal?.close();
+                          }}
+                        >
+                          {isPending ? 'Removing...' : 'Remove'}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </dialog>
               </div>
             </div>
           ))}

@@ -166,10 +166,9 @@ export const denyFriendReq = async (
       throw new AppError('You are not authorized to deny this request', 403);
     }
 
-    friendReq.status = 'denied';
-    await friendReq.save();
+    await FriendReq.findByIdAndDelete(requestId);
 
-    res.status(200).json({ message: 'Friend request denied' });
+    res.status(200).json({ message: 'Friend request denied and deleted' });
   } catch (error) {
     next(error);
   }
@@ -208,6 +207,28 @@ export const getOnGoingFriendReqs = async (
     }).populate('recipient', 'fullname img nativeLanguage learningLanguage');
 
     res.status(200).json(onGoingFriendReqs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteMyFriends = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const myId = req.user._id;
+    let { id: friendId } = req.params;
+
+    // Remove each other from friends list
+    await User.findByIdAndUpdate(myId, { $pull: { friends: friendId } });
+    await User.findByIdAndUpdate(friendId, { $pull: { friends: myId } });
+
+    res.status(200).json({
+      message:
+        'Friend deleted, chat messages and video data still on the Stream storage.',
+    });
   } catch (error) {
     next(error);
   }

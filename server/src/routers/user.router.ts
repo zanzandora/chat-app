@@ -1,5 +1,6 @@
 import {
   acceptFriendReq,
+  deleteMyFriends,
   denyFriendReq,
   getFriendReq,
   getMyFriends,
@@ -16,6 +17,7 @@ expressRouter.use(authenticateToken);
 
 expressRouter.get('/', getRecommendedUsers);
 expressRouter.get('/friends', getMyFriends);
+expressRouter.delete('/:id', deleteMyFriends);
 
 expressRouter.post('/friend-req/:id', sendFriendReq);
 expressRouter.put('/friend-req/:id/accept', acceptFriendReq);

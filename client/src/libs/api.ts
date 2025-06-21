@@ -5,6 +5,7 @@ import type { ILogin } from '@/hooks/useLogin';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import type { IFriendReqExtend } from '@/types';
 
+// TODO: AUTH LOGIC
 export const signup = async (signupData: ISignUp) => {
   const res = await axiosInstance.post('/auth/signup', signupData);
   return res.data;
@@ -30,11 +31,13 @@ export const getAuthUser = async () => {
   }
 };
 
+// TODO: ONBOARDING LOGIC
 export const completeOnboarding = async (data: OnboardingFormValues) => {
   const res = await axiosInstance.post('/auth/onboarding', data);
   return res.data;
 };
 
+// TODO: USER LOGIC
 export const getUserFriends = async () => {
   const res = await axiosInstance.get('/users/friends');
   return res.data;
@@ -45,6 +48,12 @@ export const getRecommendedUsers = async () => {
   return res.data;
 };
 
+export const deleteFriend = async (userId: string) => {
+  const res = await axiosInstance.delete(`/users/${userId}`);
+  return res.data;
+};
+
+// TODO: FRIEND REQUEST LOGIC
 export const getOutGoingFriednReqs = async () => {
   const res = await axiosInstance.get('/users/ongoing-friend-reqs');
   return res.data;

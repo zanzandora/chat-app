@@ -12,6 +12,7 @@ if (!apiKey || !apiSecret) {
 
 const streamClient = StreamChat.getInstance(apiKey, apiSecret);
 
+// TODO: CREATE THE USER IN STREAM AS WELL
 export const upsertStreamUser = async (userData: any) => {
   try {
     await streamClient.upsertUsers([userData]);
