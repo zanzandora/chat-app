@@ -54,7 +54,7 @@ export const getMyFriends = async (
   try {
     const user = await User.findById(req.user?._id)
       .select('friends')
-      .populate('friends', 'fullname img nativeLanguage learningLanguage');
+      .populate('friends');
 
     res.status(201).json(user?.friends);
   } catch (error) {

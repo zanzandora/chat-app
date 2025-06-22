@@ -144,15 +144,17 @@ const ProfilePage = () => {
                 </span>
               )}
             </div>
+
             {/* PASSWORD */}
             <div className='flex items-center gap-2'>
               <button
                 type='button'
                 onClick={handleRandomAvatar}
-                className='btn btn-accent'
+                className='btn btn-disabled'
               >
                 <KeyRound className='size-4 mr-2' />
-                Change Password
+                Change Password{' '}
+                <span className='text-error'>( will update soon )</span>
               </button>
             </div>
 

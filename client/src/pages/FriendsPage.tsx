@@ -1,4 +1,5 @@
 import NoFriendsFound from '@/components/NoFriendsFound';
+import ViewModal from '@/components/ViewModal';
 import { deleteFriend, getUserFriends } from '@/libs/api';
 import type { IUser } from '@/types';
 import { getErrorMessage } from '@/utils/getErrorMessage';
@@ -85,7 +86,8 @@ const FriendsPage = () => {
                 >
                   Chat Message
                 </Link>
-                <button className='btn btn-outline w-full'>View Profile</button>
+                {/* <button className='btn btn-outline w-full'>View Profile</button> */}
+                <ViewModal friend={friend} />
                 {/* Remove Friend Button triggers modal */}
 
                 <button
