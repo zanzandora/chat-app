@@ -32,6 +32,18 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 
+app.set('trust proxy', true); // 🔒 Cần thiết để dùng x-forwarded headers
+
+app.use((req, res, next) => {
+  if (
+    req.header('x-forwarded-proto') !== 'https' &&
+    process.env.NODE_ENV === 'production'
+  ) {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/chat', chatRouter);

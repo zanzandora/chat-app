@@ -23,7 +23,7 @@ export const signup = async (
       throw new AppError('All fields are required', 400, { missingFields });
     }
 
-    if (password.lenght < 6) {
+    if (password.length < 6) {
       throw new AppError('Password must be at least 6 characters', 400);
     }
 
@@ -116,7 +116,7 @@ export const login = async (
     res.setHeader(
       'Set-Cookie',
       cookie.serialize('token', token, {
-        // httpOnly: true,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
