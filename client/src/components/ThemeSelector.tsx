@@ -6,9 +6,14 @@ const ThemeSelector = () => {
   const { theme, setTheme } = useThemeStore();
 
   return (
-    <div className='dropdown dropdown-end'>
+    <div className='dropdown dropdown-end z-50'>
       {/* DROPDOWN TRIGGER */}
-      <button tabIndex={0} className='btn btn-ghost btn-circle'>
+      <button
+        tabIndex={0}
+        className='btn btn-ghost btn-circle'
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
         <PaletteIcon className='size-5' />
       </button>
 
@@ -30,6 +35,7 @@ const ThemeSelector = () => {
               }
             `}
               onClick={() => setTheme(themeOption.name)}
+              onTouchStart={() => setTheme(themeOption.name)}
             >
               <PaletteIcon className='size-4' />
               <span className='text-sm font-medium'>{themeOption.label}</span>
