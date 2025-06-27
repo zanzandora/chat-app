@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import type { IUser } from '@/types';
 import { getLanguageFlag } from '@/utils/getLanguageFlag';
+import UserStatusBadge from './UserStatusBadge';
 
 type Props = {
   friend: IUser;
@@ -16,6 +17,7 @@ const FriendCard = ({ friend }: Props) => {
             <img src={friend.img} alt={friend.fullname} />
           </div>
           <h3 className='font-semibold truncate'>{friend.fullname}</h3>
+          <UserStatusBadge userId={friend._id} showText />
         </div>
 
         <div className='flex flex-wrap gap-1.5 mb-3'>

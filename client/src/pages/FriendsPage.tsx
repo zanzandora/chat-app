@@ -1,4 +1,5 @@
 import NoFriendsFound from '@/components/NoFriendsFound';
+import UserStatusBadge from '@/components/UserStatusBadge';
 import ViewModal from '@/components/ViewModal';
 import { deleteFriend, getUserFriends } from '@/libs/api';
 import type { IUser } from '@/types';
@@ -52,6 +53,8 @@ const FriendsPage = () => {
               key={friend._id}
               className='card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow w-full rounded-3xl overflow-hidden flex flex-col items-center p-8'
             >
+              <UserStatusBadge userId={friend._id} className='  w-full' />
+
               {/* USER AVATAR */}
               <div className='avatar mb-6'>
                 <div className='w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden'>
