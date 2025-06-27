@@ -33,6 +33,7 @@ export const useSocketSetup = () => {
     const socket = socketRef.current;
 
     const handleConnect = () => {
+      console.log('[Client] Socket connected, waiting for auth...');
       socket.emit('authenticate', authUser._id);
     };
 
@@ -44,7 +45,11 @@ export const useSocketSetup = () => {
       setBulkStatus(statuses);
     };
 
+    console.log('[Client] Socket connecting...');
     socket.on('connect', handleConnect);
+    socket.on('authenticated', () => {
+      console.log('[Client] Socket authenticated');
+    });
     socket.on('online-list', handleOnlineList);
     socket.on('user-online', (userId: string) => setStatus(userId, true));
     socket.on('user-offline', (userId: string) => setStatus(userId, false));
