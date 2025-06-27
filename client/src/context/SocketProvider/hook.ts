@@ -23,6 +23,9 @@ export const useSocketSetup = () => {
     if (!socketRef.current) {
       socketRef.current = io(getSocketUrl(), {
         withCredentials: true,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        secure: import.meta.env.PROD,
         transports: ['websocket'],
       });
     }
