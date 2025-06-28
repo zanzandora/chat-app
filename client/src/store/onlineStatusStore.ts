@@ -6,6 +6,7 @@ interface OnlineStatusState {
   onlineStatus: OnlineStatus;
   setStatus: (userId: string, status: boolean) => void;
   setBulkStatus: (statuses: OnlineStatus) => void;
+  reset: () => void;
 }
 
 export const useOnlineStatusStore = create<OnlineStatusState>((set) => ({
@@ -15,4 +16,5 @@ export const useOnlineStatusStore = create<OnlineStatusState>((set) => ({
       onlineStatus: { ...state.onlineStatus, [userId]: status },
     })),
   setBulkStatus: (statuses) => set(() => ({ onlineStatus: statuses })),
+  reset: () => set({ onlineStatus: {} }),
 }));
