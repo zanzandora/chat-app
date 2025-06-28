@@ -117,6 +117,10 @@ app.use((req, res, next) => {
 
 // TODO: Định nghĩa các route API
 
+app.get('/health', (_req, res) => {
+  res.status(200).send('OK');
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/chat', chatRouter);
