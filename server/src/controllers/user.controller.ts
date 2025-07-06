@@ -1,7 +1,10 @@
 import User, { IUser } from '@/models/user.model';
+import User, { IUser } from '@/models/user.model';
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '@/utils/AppError';
 import FriendReq from '@/models/friendReq.model';
+import { getCache, getKey, saveCache } from '@/utils/RedisCache';
+import redis from '@/config/redis';
 import { getCache, getKey, saveCache } from '@/utils/RedisCache';
 import redis from '@/config/redis';
 
