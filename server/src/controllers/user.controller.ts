@@ -1,7 +1,9 @@
-import User from '@/models/user.model';
+import User, { IUser } from '@/models/user.model';
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '@/utils/AppError';
 import FriendReq from '@/models/friendReq.model';
+import { getCache, getKey, saveCache } from '@/utils/RedisCache';
+import redis from '@/config/redis';
 
 export const getRecommendedUsers = async (
   req: Request,
@@ -52,9 +54,26 @@ export const getMyFriends = async (
   next: NextFunction
 ) => {
   try {
+    const userId = req.user?._id;
+    const prefix = 'friends';
+
+    const key = getKey('user', userId.toString(), prefix);
+
+    //Get cached first
+    const cachedProfile = await getCache(key);
+
+    if (cachedProfile) {
+      console.log('⚡ Cache hit');
+      res.json(cachedProfile);
+      return;
+    }
+
     const user = await User.findById(req.user?._id)
       .select('friends')
-      .populate('friends');
+      .populate('friends', '-_id -password');
+
+    // Save cache if data not found
+    saveCache(key, user?.friends, 300);
 
     res.status(201).json(user?.friends);
   } catch (error) {
