@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import { AppError } from '@/utils/AppError';
 import { upsertStreamUser } from '@/libs/stream';
+import { delCache, getKey } from '@/utils/RedisCache';
 
 export const signup = async (
   req: Request,
@@ -226,6 +227,12 @@ export const putProfile = async (
         name: updateUser.fullname,
         image: updateUser.img || '',
       });
+
+      const prefix = 'friends';
+      const key = getKey('user', userId.toString(), prefix);
+
+      delCache(key);
+
       console.log(`Stream user updated for ${updateUser.fullname}`);
     } catch (error) {
       throw new AppError(`Error updating Stream user: ${error}`, 400);

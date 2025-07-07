@@ -28,3 +28,18 @@ export const getCache = async (key: string) => {
     return null;
   }
 };
+
+export const delCache = (key: string) => {
+  try {
+    const success = redis.del(key);
+    if (!success) {
+      console.warn('⚠️ Cache save failed (redis set returned false):', key);
+    } else {
+      console.log('💾 Cache saved:', key);
+    }
+    return success;
+  } catch (err) {
+    console.warn('🚫 Cache save exception:', (err as Error).message);
+    return false;
+  }
+};
