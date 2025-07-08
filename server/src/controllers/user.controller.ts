@@ -1,8 +1,9 @@
-import User from '@/models/user.model';
+import User, { IUser } from '@/models/user.model';
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '@/utils/AppError';
 import FriendReq from '@/models/friendReq.model';
 import { getCache, getKey, saveCache } from '@/utils/RedisCache';
+import { deleteStreamChannel } from '@/libs/stream';
 
 export const getRecommendedUsers = async (
   req: Request,
@@ -62,17 +63,17 @@ export const getMyFriends = async (
     const cachedProfile = await getCache(key);
 
     if (cachedProfile) {
-      console.log('⚡ Cache hit');
+      console.log('⚡ Cache hit: ', userId.toString());
       res.json(cachedProfile);
       return;
     }
 
     const user = await User.findById(req.user?._id)
       .select('friends')
-      .populate('friends', '-_id -password');
+      .populate('friends', ' -password');
 
     // Save cache if data not found
-    saveCache(key, user?.friends, 300);
+    await saveCache(key, user?.friends, 300);
 
     res.status(201).json(user?.friends);
   } catch (error) {
@@ -159,6 +160,35 @@ export const acceptFriendReq = async (
     await User.findByIdAndUpdate(friendReq.recipient, {
       $addToSet: { friends: friendReq.sender },
     });
+
+    // Sau khi cập nhật DB (add friend), cập nhật cache cho cả hai user
+
+    // 1. Cập nhật cache cho sender
+    const [sender, recipient] = await Promise.all([
+      User.findById(friendReq.sender).select('friends').populate('friends'),
+      User.findById(friendReq.recipient).select('friends').populate('friends'),
+    ]);
+
+    const senderFriends = (sender?.friends || []).filter(
+      (f: any) => f._id.toString() !== friendReq.sender.toString()
+    );
+
+    const recipientFriends = (recipient?.friends || []).filter(
+      (f: any) => f._id.toString() !== friendReq.recipient.toString()
+    );
+
+    const senderKey = getKey('user', friendReq.sender.toString(), 'friends');
+    const recipientKey = getKey(
+      'user',
+      friendReq.recipient.toString(),
+      'friends'
+    );
+
+    await Promise.all([
+      saveCache(senderKey, senderFriends, 300),
+      saveCache(recipientKey, recipientFriends, 300),
+    ]);
+
     res.status(201).json({ message: 'Friend request accepted' });
   } catch (error) {
     next(error);
@@ -206,7 +236,10 @@ export const getFriendReq = async (
     const acceptedReqs = await FriendReq.find({
       sender: req.user._id,
       status: 'accepted',
-    }).populate('recipient', 'fullname img');
+    })
+      .populate('recipient', 'fullname img')
+      .sort({ updatedAt: -1 });
+
     res.status(201).json({ incomingReqs, acceptedReqs });
   } catch (error) {
     next(error);
@@ -242,6 +275,51 @@ export const deleteMyFriends = async (
     // Remove each other from friends list
     await User.findByIdAndUpdate(myId, { $pull: { friends: friendId } });
     await User.findByIdAndUpdate(friendId, { $pull: { friends: myId } });
+
+    // TODO: DELETE FRIEND REQUEST
+    await FriendReq.findOneAndDelete({
+      $or: [
+        { sender: myId, recipient: friendId },
+        { sender: friendId, recipient: myId },
+      ],
+    });
+
+    // TODO: DELETE THE CHANNEL IN STREAM AS WELL
+    await deleteStreamChannel('messaging', `${myId}-${friendId}`);
+
+    const senderKey = getKey('user', myId.toString(), 'friends');
+    const recipientKey = getKey('user', friendId, 'friends');
+
+    const senderCached = await getCache(senderKey);
+    const recipientCached = await getCache(recipientKey);
+
+    if (senderCached) {
+      try {
+        const updatedFriends = senderCached.filter(
+          (friend: IUser) => friend._id.toString() !== friendId.toString()
+        );
+        console.log('⚡ Cache hit for friends delete, updating cache');
+
+        await saveCache(senderKey, updatedFriends, 300);
+      } catch (error) {
+        console.error('Failed to parse friend cache', error);
+        throw new AppError('Failed to parse friend cache', 500);
+      }
+    }
+
+    if (recipientCached) {
+      try {
+        const updatedFriends = recipientCached.filter(
+          (friend: IUser) => friend._id.toString() !== myId.toString()
+        );
+        console.log('⚡ Cache hit for friends delete, updating cache');
+
+        await saveCache(recipientKey, updatedFriends, 300);
+      } catch (error) {
+        console.error('Failed to parse friend cache', error);
+        throw new AppError('Failed to parse friend cache', 500);
+      }
+    }
 
     res.status(200).json({
       message:

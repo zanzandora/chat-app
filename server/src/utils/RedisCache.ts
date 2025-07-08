@@ -35,7 +35,7 @@ export const delCache = (key: string) => {
     if (!success) {
       console.warn('⚠️ Cache save failed (redis set returned false):', key);
     } else {
-      console.log('💾 Cache saved:', key);
+      console.log('💾 Cache del :', key);
     }
     return success;
   } catch (err) {
