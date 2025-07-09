@@ -1,4 +1,5 @@
 import NoNotificationsFound from '@/components/NoNotificationsFound';
+import { useSocket } from '@/context/SocketProvider';
 import { acceptFriendReq, denyriendReq, getFriendReqs } from '@/libs/api';
 import { timePassed } from '@/utils/timePassed';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -11,6 +12,8 @@ import {
 import toast from 'react-hot-toast';
 
 const NotificationPage = () => {
+  const socket = useSocket();
+
   const queryClient = useQueryClient();
 
   const { data: FriendReqs, isLoading } = useQuery({
@@ -21,10 +24,25 @@ const NotificationPage = () => {
   const { mutate: acceptedReqMutate, isPending: isPendingAcceptedReq } =
     useMutation({
       mutationFn: acceptFriendReq,
-      onSuccess: () => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
         queryClient.invalidateQueries({ queryKey: ['friends'] });
         toast.success('Friend request accepted successfully!');
+
+        console.log(data);
+
+        if (socket?.connected) {
+          socket.emit('friend:added', {
+            targetUserId: data?.senderInfor.sender._id,
+            payload: {
+              action: 'added',
+              timestamp: new Date().toISOString(),
+              sender: data?.senderInfor.sender.fullname,
+              recipient: data?.recipientInfo.recipient.fullname,
+            },
+          });
+          console.log('Friend deletion event emitted');
+        }
       },
     });
 

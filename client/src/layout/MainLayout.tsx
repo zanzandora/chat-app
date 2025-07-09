@@ -1,5 +1,9 @@
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
+import { useSocket } from '@/context/SocketProvider';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 const MainLayout = ({
   children,
@@ -8,6 +12,36 @@ const MainLayout = ({
   children: React.ReactNode;
   showSidebar: boolean;
 }) => {
+  const socket = useSocket();
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handlerDelete = (payload: { from: string; action: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['friends'] });
+
+      toast.error(`You were removed from friends by ${payload.from}`);
+    };
+
+    const handlerAdded = (payload: { recipient: string; action: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['ongoing-friends-req'] });
+      queryClient.invalidateQueries({ queryKey: ['recommend-users'] });
+      queryClient.invalidateQueries({ queryKey: ['friends'] });
+
+      toast.error(`You were added from friends by ${payload.recipient}`);
+    };
+
+    socket.on('friend:deleted:notify', handlerDelete);
+    socket.on('friend:added:notify', handlerAdded);
+
+    return () => {
+      socket.off('friend:deleted:notify', handlerDelete);
+      socket.off('friend:added:notify', handlerAdded);
+    };
+  }, [socket, queryClient]);
+
   return (
     <div className='min-h-screen'>
       <div className='flex'>

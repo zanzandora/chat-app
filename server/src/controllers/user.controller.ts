@@ -63,7 +63,7 @@ export const getMyFriends = async (
     const cachedProfile = await getCache(key);
 
     if (cachedProfile) {
-      console.log('⚡ Cache hit: ', userId.toString());
+      // console.log('⚡ Cache hit: ', userId.toString());
       res.json(cachedProfile);
       return;
     }
@@ -189,7 +189,19 @@ export const acceptFriendReq = async (
       saveCache(recipientKey, recipientFriends, 300),
     ]);
 
-    res.status(201).json({ message: 'Friend request accepted' });
+    const senderInfor = await FriendReq.findById(requestId)
+      .select('sender')
+      .populate('sender', '_id fullname');
+
+    const recipientInfo = await FriendReq.findById(requestId)
+      .select('recipient')
+      .populate('recipient', '_id fullname');
+
+    res.status(201).json({
+      message: 'Friend request accepted',
+      senderInfor,
+      recipientInfo,
+    });
   } catch (error) {
     next(error);
   }

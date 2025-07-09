@@ -13,6 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { Server } from 'socket.io';
+import { initSocket } from './libs/websocketIO';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,55 +34,8 @@ const io = new Server(httpServer, {
   transports: ['websocket'], // Chỉ dùng WebSocket để tối ưu
 });
 
-// Map lưu trạng thái người dùng: { userId: socketId }
-const onlineUsers = new Map<string, string>();
-
-io.on('connection', (socket) => {
-  let userId: string | null = null;
-  let authenticated = false;
-
-  // Đặt timeout xác thực ( 10 giây)
-  const authTimeout = setTimeout(() => {
-    if (!authenticated) {
-      socket.emit('auth-timeout');
-      socket.disconnect();
-    }
-  }, 10000);
-
-  try {
-    // Lắng nghe sự kiện authenticate
-    socket.on('authenticate', (id: string) => {
-      if (authenticated) return;
-      userId = id;
-      authenticated = true;
-      clearTimeout(authTimeout);
-
-      onlineUsers.set(userId, socket.id);
-
-      // Gửi danh sách online hiện tại
-      socket.emit('online-list', Array.from(onlineUsers.keys()));
-
-      // Thông báo user mới online cho các client khác
-      socket.broadcast.emit('user-online', userId);
-
-      console.log(
-        `User authenticated & connected: ${userId} (socket: ${socket.id})`
-      );
-    });
-
-    socket.on('disconnect', () => {
-      clearTimeout(authTimeout);
-      if (!authenticated || !userId) return;
-
-      console.log(`User disconnected: ${userId}`);
-
-      onlineUsers.delete(userId);
-      io.emit('user-offline', userId);
-    });
-  } catch (error) {
-    socket.disconnect();
-  }
-});
+//logic xử lý WebSocket
+initSocket(io);
 
 // Đảm bảo path đúng dù chạy ở src/ hay dist/
 const clientDist = path.resolve(__dirname, '../../client/dist');
