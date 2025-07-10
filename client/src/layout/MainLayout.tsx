@@ -19,14 +19,14 @@ const MainLayout = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handlerDelete = (payload: { from: string; action: string }) => {
+    const handlerDelete = (payload: { sender: string; action: string }) => {
       queryClient.invalidateQueries({ queryKey: ['friends'] });
 
-      toast.error(`You were removed from friends by ${payload.from}`);
+      toast.error(`You were removed from friends by ${payload.sender}`);
     };
 
     const handlerAdded = (payload: { recipient: string; action: string }) => {
-      queryClient.invalidateQueries({ queryKey: ['ongoing-friends-req'] });
+      queryClient.invalidateQueries({ queryKey: ['ongoing-friends-reqs'] });
       queryClient.invalidateQueries({ queryKey: ['recommend-users'] });
       queryClient.invalidateQueries({ queryKey: ['friends'] });
 

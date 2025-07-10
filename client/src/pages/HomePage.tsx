@@ -1,5 +1,6 @@
 import FriendCard from '@/components/FriendCard';
 import NoFriendsFound from '@/components/NoFriendsFound';
+import { useSocket } from '@/context/SocketProvider';
 import {
   getOutGoingFriednReqs,
   getRecommendedUsers,
@@ -19,6 +20,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 
 const HomePage = () => {
+  const socket = useSocket();
+
   const queryClient = useQueryClient();
   const [outgoingReqsIds, setOutgoingReqsIds] = useState(new Set());
 
@@ -39,16 +42,22 @@ const HomePage = () => {
 
   const { mutate: sendReqMution, isPending } = useMutation({
     mutationFn: sendFriendReq,
-    onSuccess: () => {
+    onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ['ongoing-friends-reqs'] });
+
+      if (!socket) return;
+
+      socket.emit('new-friend-req', {
+        targetUserId: userId,
+      });
     },
   });
 
   const capitialize = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
-  console.log('outgoingFriendReqs', outgoingFriendReqs);
 
+  // TODO: xác định nhanh những user nào đã được gửi lời mời kết bạn, để hiển thị trạng thái phù hợp trên UI.
   useEffect(() => {
     const outgoingIds = new Set();
     if (outgoingFriendReqs && outgoingFriendReqs.length > 0) {
@@ -60,6 +69,25 @@ const HomePage = () => {
       setOutgoingReqsIds(outgoingIds);
     }
   }, [outgoingFriendReqs]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleFriendRequestDenied = (data: { from: string }) => {
+      setOutgoingReqsIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(data.from);
+        return newSet;
+      });
+      queryClient.invalidateQueries({ queryKey: ['ongoing-friends-reqs'] });
+    };
+
+    socket.on('friend:denied:notify', handleFriendRequestDenied);
+
+    return () => {
+      socket.off('friend:denied:notify', handleFriendRequestDenied);
+    };
+  }, [socket, queryClient]);
 
   return (
     <div className='p-4 sm:p-6 lg:p-8'>

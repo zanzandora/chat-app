@@ -104,7 +104,7 @@ export const sendFriendReq = async (
       throw new AppError(`You are already friends with this user`, 400);
     }
 
-    // *check if a req already exists
+    // *check if a req already exists, re-state to pending
     const existingReq = await FriendReq.findOne({
       $or: [
         { sender: myId, recipient: recipientId },
@@ -113,10 +113,7 @@ export const sendFriendReq = async (
     });
 
     if (existingReq) {
-      throw new AppError(
-        'A friend request already exits between you and this user',
-        400
-      );
+      await FriendReq.findByIdAndDelete(existingReq._id);
     }
 
     const friendReq = await FriendReq.create({
@@ -226,9 +223,21 @@ export const denyFriendReq = async (
       throw new AppError('You are not authorized to deny this request', 403);
     }
 
-    await FriendReq.findByIdAndDelete(requestId);
+    // await FriendReq.findByIdAndDelete(requestId);
 
-    res.status(200).json({ message: 'Friend request denied and deleted' });
+    friendReq.status = 'denied';
+    await friendReq.save();
+
+    const senderInfor = await FriendReq.findById(requestId)
+      .select('sender')
+      .populate('sender', '_id fullname');
+
+    res.status(201).json({
+      message: 'Friend request denied and deleted',
+      senderInfor,
+    });
+
+    // res.status(200).json({ message: 'Friend request denied and deleted' });
   } catch (error) {
     next(error);
   }

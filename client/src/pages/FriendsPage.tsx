@@ -2,6 +2,7 @@ import NoFriendsFound from '@/components/NoFriendsFound';
 import UserStatusBadge from '@/components/UserStatusBadge';
 import ViewModal from '@/components/ViewModal';
 import { useSocket } from '@/context/SocketProvider';
+import useAuthUser from '@/hooks/useAuthUser';
 import { deleteFriend, getUserFriends } from '@/libs/api';
 import type { IUser } from '@/types';
 import { getErrorMessage } from '@/utils/getErrorMessage';
@@ -12,6 +13,7 @@ import { Link } from 'react-router';
 
 const FriendsPage = () => {
   const socket = useSocket();
+  const { authUser } = useAuthUser();
 
   const {
     data: friends = [],
@@ -38,6 +40,7 @@ const FriendsPage = () => {
           payload: {
             action: 'removed',
             timestamp: new Date().toISOString(),
+            sender: authUser?.fullname,
           },
         });
         console.log('Friend deletion event emitted');

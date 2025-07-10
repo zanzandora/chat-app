@@ -35,6 +35,31 @@ export function initSocket(io: Server) {
           `User authenticated & connected: ${userId} (socket: ${socket.id})`
         );
 
+        // Xử lý hiển thị req mới khi user A gửi lời kết bạn tới user B
+        socket.on(
+          'new-friend-req',
+          ({ targetUserId }: { targetUserId: string }) => {
+            if (!userId || !authenticated) {
+              console.log(`🚫 Unauthenticated new-friend-req attempt`);
+              return;
+            }
+
+            console.log(`🔔 new-friend-req from ${userId} to ${targetUserId}`);
+
+            const targetSocketId = onlineUsers.get(targetUserId);
+            if (!targetSocketId) {
+              console.log(
+                `❌ ${targetUserId} not online - notification not sent`
+              );
+              return;
+            }
+
+            io.to(targetSocketId).emit('new-friend-req:notify');
+
+            console.log(`✉️ Sent new-friend-req:notify to ${targetUserId}`);
+          }
+        );
+
         // Xử lý thông báo xóa bạn bè
         socket.on(
           'friend:deleted',
@@ -103,6 +128,33 @@ export function initSocket(io: Server) {
               });
               console.log(`Sent friend:added:notify to ${targetUserId}`);
             }
+          }
+        );
+
+        // Xử lý thông báo từ chối bạn bè
+        socket.on(
+          'friend:denied',
+          ({ targetUserId }: { targetUserId: string }) => {
+            if (!userId || !authenticated) {
+              console.log(`🚫 Unauthenticated friend:denied attempt`);
+              return;
+            }
+
+            console.log(`🔔 friend:denied from ${userId} to ${targetUserId}`);
+
+            const targetSocketId = onlineUsers.get(targetUserId);
+            if (!targetSocketId) {
+              console.log(
+                `❌ ${targetUserId} not online - notification not sent`
+              );
+              return;
+            }
+
+            io.to(targetSocketId).emit('friend:denied:notify', {
+              from: userId,
+            });
+
+            console.log(`✉️ Sent friend:denied:notify to ${targetUserId}`);
           }
         );
       });

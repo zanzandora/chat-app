@@ -9,6 +9,7 @@ import {
   MessageSquareIcon,
   UserCheckIcon,
 } from 'lucide-react';
+import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 const NotificationPage = () => {
@@ -29,8 +30,6 @@ const NotificationPage = () => {
         queryClient.invalidateQueries({ queryKey: ['friends'] });
         toast.success('Friend request accepted successfully!');
 
-        console.log(data);
-
         if (socket?.connected) {
           socket.emit('friend:added', {
             targetUserId: data?.senderInfor.sender._id,
@@ -49,15 +48,37 @@ const NotificationPage = () => {
   const { mutate: deniedReqMutate, isPending: isPendingDeniedReq } =
     useMutation({
       mutationFn: denyriendReq,
-      onSuccess: () => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
         queryClient.invalidateQueries({ queryKey: ['friends'] });
+
+        if (socket?.connected) {
+          socket.emit('friend:denied', {
+            targetUserId: data?.senderInfor.sender._id,
+          });
+          console.log('Friend deletion event emitted');
+        }
+
         toast.success('Friend request denied successfully!');
       },
     });
 
   const inComingReqs = FriendReqs?.incomingReqs || [];
   const acceptReqs = FriendReqs?.acceptedReqs || [];
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewFriendRequest = () => {
+      queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
+    };
+
+    socket.on('new-friend-req:notify', handleNewFriendRequest);
+
+    return () => {
+      socket.off('new-friend-req:notify', handleNewFriendRequest);
+    };
+  }, [socket, queryClient]);
 
   return (
     <div className='p-4 sm:p-6 lg:p-8'>
