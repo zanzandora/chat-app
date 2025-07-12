@@ -8,6 +8,7 @@ import {
   ClockIcon,
   MessageSquareIcon,
   UserCheckIcon,
+  UserXIcon,
 } from 'lucide-react';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -65,6 +66,7 @@ const NotificationPage = () => {
 
   const inComingReqs = FriendReqs?.incomingReqs || [];
   const acceptReqs = FriendReqs?.acceptedReqs || [];
+  const deniedReqs = FriendReqs?.deniedReqs || [];
 
   useEffect(() => {
     if (!socket) return;
@@ -196,6 +198,49 @@ const NotificationPage = () => {
                           <div className='badge badge-success'>
                             <MessageSquareIcon className='h-3 w-3 mr-1' />
                             New Friend
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* DENIED REQS NOTIFICATONS */}
+            {deniedReqs.length > 0 && (
+              <section className='space-y-4'>
+                <h2 className='text-xl font-semibold flex items-center gap-2'>
+                  <UserXIcon className='h-5 w-5 text-error' />
+                  Denied
+                </h2>
+
+                <div className='space-y-3'>
+                  {deniedReqs.map((notification) => (
+                    <div
+                      key={notification._id}
+                      className='card bg-base-200 shadow-sm'
+                    >
+                      <div className='card-body p-4'>
+                        <div className='flex items-start gap-3'>
+                          <div className='avatar mt-1 size-10 rounded-full'>
+                            <img
+                              src={notification.recipient.img}
+                              alt={notification.recipient.fullname}
+                            />
+                          </div>
+                          <div className='flex-1'>
+                            <h3 className='font-semibold'>
+                              {notification.recipient.fullname}
+                            </h3>
+                            <p className='text-sm my-1'>
+                              {notification.recipient.fullname} denied your
+                              friend request
+                            </p>
+                            <p className='text-xs flex items-center opacity-70'>
+                              <ClockIcon className='h-3 w-3 mr-1' />
+                              {timePassed(notification.updatedAt)}
+                            </p>
                           </div>
                         </div>
                       </div>

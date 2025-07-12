@@ -24,4 +24,5 @@ export type IFriendReq = {
 export type IFriendReqExtend = {
   incomingReqs: IFriendReq[];
   acceptedReqs: IFriendReq[];
+  deniedReqs: IFriendReq[];
 };

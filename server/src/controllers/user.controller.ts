@@ -261,7 +261,14 @@ export const getFriendReq = async (
       .populate('recipient', 'fullname img')
       .sort({ updatedAt: -1 });
 
-    res.status(201).json({ incomingReqs, acceptedReqs });
+    const deniedReqs = await FriendReq.find({
+      sender: req.user._id,
+      status: 'denied',
+    })
+      .populate('recipient', 'fullname img')
+      .sort({ updatedAt: -1 });
+
+    res.status(201).json({ incomingReqs, acceptedReqs, deniedReqs });
   } catch (error) {
     next(error);
   }
