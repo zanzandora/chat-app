@@ -232,9 +232,14 @@ export const denyFriendReq = async (
       .select('sender')
       .populate('sender', '_id fullname');
 
+    const recipientInfo = await FriendReq.findById(requestId)
+      .select('recipient')
+      .populate('recipient', '_id fullname');
+
     res.status(201).json({
       message: 'Friend request denied and deleted',
       senderInfor,
+      recipientInfo,
     });
 
     // res.status(200).json({ message: 'Friend request denied and deleted' });

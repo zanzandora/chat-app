@@ -71,14 +71,18 @@ const NotificationPage = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleNewFriendRequest = () => {
+    const handleNotifyRequest = () => {
       queryClient.invalidateQueries({ queryKey: ['friend-reqs'] });
     };
 
-    socket.on('new-friend-req:notify', handleNewFriendRequest);
+    socket.on('new-friend-req:notify', handleNotifyRequest);
+    socket.on('friend:denied:notify', handleNotifyRequest);
+    socket.on('friend:added:notify', handleNotifyRequest);
 
     return () => {
-      socket.off('new-friend-req:notify', handleNewFriendRequest);
+      socket.off('new-friend-req:notify', handleNotifyRequest);
+      socket.off('friend:denied:notify', handleNotifyRequest);
+      socket.off('friend:added:notify', handleNotifyRequest);
     };
   }, [socket, queryClient]);
 
