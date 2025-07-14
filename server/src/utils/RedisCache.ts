@@ -1,6 +1,10 @@
 import redis from '@/config/redis';
 
+const isRedisEnabled = process.env.NODE_ENV !== 'production';
+
 export const saveCache = (key: string, data: any, ttlSeconds = 60) => {
+  if (!isRedisEnabled) return true;
+
   try {
     const success = redis.setJson(key, data, ttlSeconds);
     if (!success) {
@@ -20,6 +24,8 @@ export const getKey = (type: string, userId: string, suffix?: string) =>
 
 // Thêm hàm getCache để sử dụng trong controller
 export const getCache = async (key: string) => {
+  if (!isRedisEnabled) return null;
+
   try {
     const cacheData = await redis.getJson(key);
     return cacheData ?? null;
@@ -30,6 +36,8 @@ export const getCache = async (key: string) => {
 };
 
 export const delCache = (key: string) => {
+  if (!isRedisEnabled) return true;
+
   try {
     const success = redis.del(key);
     if (!success) {
